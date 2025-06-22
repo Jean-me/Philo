@@ -16,10 +16,11 @@ typedef struct s_table //共有？
 	int time_to_sleep;
 	pthread_mutex_t forks[PHILO_MAX];
 	pthread_t monitor_thread; //監視用スレッド
+	pthread_mutex_t died;     // 誰かが死んだかどうかを管理するミューテックス
 	int someone_died;
 	size_t start_time; // 開始時間
 
-}		t_table;
+}			t_table;
 
 typedef struct s_philo //固有？
 {
@@ -30,7 +31,7 @@ typedef struct s_philo //固有？
 	pthread_mutex_t *left_fork;  // 左のフォーク（mutex）
 	pthread_mutex_t *right_fork; // 右のフォーク（mutex）
 	pthread_t thread;
-}		t_philo;
+}			t_philo;
 
 size_t	get_time(void)
 {
@@ -47,8 +48,25 @@ void	zzz(size_t duration, t_table *table)
 	start = get_time();
 	while (!table->someone_died && get_time() - start < duration)
 	{
-		usleep(1); // 100マイクロ秒待機
+		usleep(100); // 100マイクロ秒待機
 	}
+}
+
+void	set_someone_died(t_table *table)
+{
+	pthread_mutex_lock(&table->died);
+	table->someone_died = 1; // 誰かが死んだと設定
+	pthread_mutex_unlock(&table->died);
+}
+
+int	get_someone_died(t_table *table)
+{
+	int	result;
+
+	pthread_mutex_lock(&table->died);
+	result = table->someone_died;
+	pthread_mutex_unlock(&table->died);
+	return (result);
 }
 
 int	ft_isdigit(int c)
@@ -176,7 +194,7 @@ void	philo_init(t_philo *phi, char **arg, t_table *table)
 			// 左のフォーク
 			phi[i].right_fork = &table->forks[(i + 1) % ft_atoi(arg[1])];
 			// 右のフォーク
-			phi[i].last_meal = 0; // 最後に食べた時間を0に初期化
+			phi[i].last_meal = table->start_time; // 最後に食べた時間を0に初期化
 			i++;
 		}
 	}
@@ -192,6 +210,53 @@ void	mutex_init(t_table *table)
 		pthread_mutex_init(&table->forks[j], NULL);
 		j++;
 	}
+	pthread_mutex_init(&table->died, NULL); // 誰かが死んだかどうかを管理するミューテックスを初期化
+}
+
+static void	picking_up_forks(int id, t_table *table,
+		pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
+{
+	if (get_someone_died(table))
+		return ;
+	pthread_mutex_lock(first_fork);
+	printf("%d has taken a fork.\n", id);
+	pthread_mutex_lock(second_fork);
+	printf("%d has taken a fork.\n", id);
+}
+
+static void	eating(t_philo *philo, int id)
+{
+	if (get_someone_died(philo->table))
+		return ;
+	philo->last_meal = get_time(); // 最後に食べた時間を更新
+	printf("%d is eating.\n", id);
+	zzz(philo->table->time_to_eat, philo->table);
+}
+static void	putting_down_forks(int id, t_table *table,
+		pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
+{
+	if (get_someone_died(table))
+		return ;
+	pthread_mutex_unlock(first_fork);
+	printf("%d has put down a fork.\n", id);
+	pthread_mutex_unlock(second_fork);
+	printf("%d has put down a fork.\n", id);
+}
+
+static void	sleeping(t_philo *philo, int id)
+{
+	if (get_someone_died(philo->table))
+		return ;
+	printf("%d is sleeping.\n", id);
+	zzz(philo->table->time_to_sleep, philo->table); // Sleeping time
+}
+
+static void	thinking(t_philo *philo, int id)
+{
+	if (get_someone_died(philo->table))
+		return ;
+	printf("%d is thinking.\n", id);
+	zzz(philo->table->time_to_sleep, philo->table); // Thinking time
 }
 
 void	*routine(void *arg) // argはphiloそれぞれのアドレス
@@ -202,37 +267,27 @@ void	*routine(void *arg) // argはphiloそれぞれのアドレス
 	philo = (t_philo *)arg;
 	id = philo->id;
 
-	while (!philo->table->someone_died) // フィロが生きている間ループ
+	while (!get_someone_died(philo->table)) // フィロが生きている間ループ
 	{
-		// Picking up forks
 		if (philo->id % 2 == 0) // 偶数のフィロは左のフォークを先に取る
 		{
-			pthread_mutex_lock(philo->left_fork);
-			printf("%d has taken a fork.\n", id);
-			pthread_mutex_lock(philo->right_fork);
-			printf("%d has taken a fork.\n", id);
+			picking_up_forks(id, philo->table, philo->left_fork,
+								philo->right_fork); // first_fork, second_fork);
 		}
 		else // 奇数のフィロは右のフォークを先に取る
 		{
-			pthread_mutex_lock(philo->right_fork);
-			printf("%d has taken a fork.\n", id);
-			pthread_mutex_lock(philo->left_fork);
-			printf("%d has taken a fork.\n", id);
+			picking_up_forks(id, philo->table, philo->right_fork,
+				philo->left_fork);
 		}
-		// Eating
-		philo->last_meal = get_time(); // 最後に食べた時間を更新
-		printf("%d is eating.\n", id);
-		zzz(philo->table->time_to_eat, philo->table); // Eating time
-		// Putting down forks
-		pthread_mutex_unlock(philo->right_fork);
-		pthread_mutex_unlock(philo->left_fork);
-		// Sleeping
-		printf("%d is sleeping.\n", id);
-		zzz(philo->table->time_to_sleep, philo->table); // Sleeping time
-														// Thinking
-		printf("%d is thinking.\n", id);
-		zzz(philo->table->time_to_sleep, philo->table); // Thinking time
+
+		eating(philo, id);
+		putting_down_forks(id, philo->table, philo->right_fork,
+			philo->left_fork);
+		sleeping(philo, id);
+		thinking(philo, id);
 	}
+	printf("%d\n", philo->id);
+
 	return (NULL); // スレッド終了
 }
 
@@ -262,8 +317,10 @@ void	*monitor(void *arg) // 監視スレッド
 			if (current_time - philos[i].last_meal > table->time_to_die)
 			{
 				printf("%d died.\n", philos[i].id);
-				table->someone_died = 1; // 誰かが死んだ
-				return (NULL);           // 監視スレッドは終了
+				set_someone_died(table); // 誰かが死んだと設定
+											// table->someone_died = 1;
+
+				return (NULL); // 監視スレッドは終了
 			}
 			i++;
 		}
@@ -288,12 +345,14 @@ int	make_threads(t_philo *philos, t_table *table)
 		//監視者
 		return (3);
 	i = 0;
+	printf("test\n");
 	while (i < table->n_philos)
 	{
 		if (pthread_join(philos[i].thread, NULL) != 0) // 各スレッドの終了を待つ
 			return (2);
 		i++;
 	}
+	printf("test352\n");
 	pthread_join(table->monitor_thread, NULL); // 監視スレッドの終了を待つ
 	i = 0;
 	while (i < table->n_philos) // スレッドを終了した後、フォークのミューテックスを破棄
@@ -301,13 +360,15 @@ int	make_threads(t_philo *philos, t_table *table)
 		pthread_mutex_destroy(&table->forks[i]);
 		i++;
 	}
-	return (0); // 成功
+	pthread_mutex_destroy(&table->died); // 誰かが死んだかどうかを管理するミューテックスを破棄
+	return (0);                          // 成功
 }
 
 int	main(int argc, char **argv) // numPhilo, die, eat, sleep
 {
 	t_table table;
 	t_philo philos[PHILO_MAX];
+	int res;
 
 	if (argc != 5) // 引数の数が正しいか確認
 		return (1);
@@ -315,10 +376,11 @@ int	main(int argc, char **argv) // numPhilo, die, eat, sleep
 		return (1);
 	//入力が数字のみか、INTMAX超えてないか確認の関数➺リターンがNUMBERなら、atoiで数値に➺200？
 	arg_init(argv, &table);
+	table.start_time = get_time();    // 開始時間を現在の時間に設定
 	philo_init(philos, argv, &table); // Philoの数だけID,table,lastmealを初期化する関数
 	// ストラクチャに代入する関数↑
 	mutex_init(&table);
 	// mutexを初期化する関数
-	make_threads(philos, &table); // threadsを作成する関数 intreturnどうすんの
-	return (0);
+	res = make_threads(philos, &table); // threadsを作成する関数 intreturnどうすんの
+	return (res);                       // 成功なら0,失敗なら1,2,3を返す
 }
