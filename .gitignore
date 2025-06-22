@@ -2,3 +2,4 @@ Philo.c
 a.out
 threads.c
 Philo_Practice.c
+.gitignore
