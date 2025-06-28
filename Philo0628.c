@@ -67,13 +67,6 @@ void	set_someone_died(t_table *table)
 	pthread_mutex_unlock(&table->died);
 }
 
-// void set_all_nourished(t_table *table)
-// {
-//  pthread_mutex_lock(&table->moments_nourished_lock);
-//  table->all_nourished = 1; // 全員が指定回数食事を終えたと設定
-//  pthread_mutex_unlock(&table->moments_nourished_lock);
-// }
-
 int	get_someone_died(t_table *table)
 {
 	int	result;
@@ -237,9 +230,9 @@ void	mutex_init(t_table *table)
 	pthread_mutex_init(&table->died, NULL);
 	// 誰かが死んだかどうかを管理するミューテックスを初期化
 }
-int	get_all_nourished(t_table *table)
+bool	get_all_nourished(t_table *table)
 {
-	int	result;
+	bool	result;
 
 	pthread_mutex_lock(&table->moments_nourished_lock);
 	result = table->all_nourished;
@@ -251,10 +244,10 @@ static int	all_philos_nourished(t_philo *philos, t_table *table)
 {
 	int	i;
 
-	i = 1;                           // フィロの配列のインデックスは0から始まるので1からスタート
+	i = 0;                           // フィロの配列のインデックスは0から始まるので1からスタート
 	if (table->number_of_meals == 0) // 食事の回数が指定されていない場合は常にfalse
 		return (0);
-	while (i <= table->n_philos) // 全てのフィロが指定回数食事を終えたか確認
+	while (i < table->n_philos) // 全てのフィロが指定回数食事を終えたか確認
 	{
 		pthread_mutex_lock(&table->moments_nourished_lock);
 		if (philos[i].times_nourished < table->number_of_meals)
@@ -359,10 +352,10 @@ void	*routine(void *arg) // argはphiloそれぞれのアドレス
 	while (!get_someone_died(philo->table) && !get_all_nourished(philo->table))
 	// フィロが生きている間ループ
 	{
-		// 追加: 自分の食事回数が指定回数に達したら終了
-		if (philo->table->number_of_meals > 0
-			&& philo->times_nourished >= philo->table->number_of_meals)
-			return (NULL);
+		// // 追加: 自分の食事回数が指定回数に達したら終了
+		// if (philo->table->number_of_meals > 0
+		// 	&& philo->times_nourished >= philo->table->number_of_meals)
+		// 	return (NULL);
 
 		if (philo->id % 2 == 0) // 偶数のフィロは左のフォークを先に取る
 		{
@@ -402,6 +395,14 @@ void	*monitor(void *arg) // 監視スレッド
 	while (1)
 	{
 		i = 0;
+		if (all_philos_nourished(philos, table)) // 全員が指定回数食事を終えたか確認
+		{
+			pthread_mutex_lock(&table->moments_nourished_lock);
+			table->all_nourished = 1; // 全員が指定回数食事を終えたと設定
+			pthread_mutex_unlock(&table->moments_nourished_lock);
+			printf("All philosophers have nourished\n");
+			return (NULL); // 監視スレッドは終了
+		}
 		while (i < table->n_philos)
 		{
 			current_time = get_time();
@@ -414,14 +415,6 @@ void	*monitor(void *arg) // 監視スレッド
 				return (NULL);           // 監視スレッドは終了
 			}
 			i++;
-		}
-		if (all_philos_nourished(philos, table)) // 全員が指定回数食事を終えたか確認
-		{
-			pthread_mutex_lock(&table->moments_nourished_lock);
-			table->all_nourished = 1; // 全員が指定回数食事を終えたと設定
-			pthread_mutex_unlock(&table->moments_nourished_lock);
-			printf("All philosophers have nourished\n");
-			return (NULL); // 監視スレッドは終了
 		}
 	}
 }
