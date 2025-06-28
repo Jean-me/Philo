@@ -359,6 +359,11 @@ void	*routine(void *arg) // argはphiloそれぞれのアドレス
 	while (!get_someone_died(philo->table) && !get_all_nourished(philo->table))
 	// フィロが生きている間ループ
 	{
+		// 追加: 自分の食事回数が指定回数に達したら終了
+		if (philo->table->number_of_meals > 0
+			&& philo->times_nourished >= philo->table->number_of_meals)
+			return (NULL);
+
 		if (philo->id % 2 == 0) // 偶数のフィロは左のフォークを先に取る
 		{
 			ret = picking_up_forks(id, philo->table, philo->left_fork,
