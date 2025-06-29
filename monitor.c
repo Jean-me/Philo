@@ -28,6 +28,15 @@ static int	all_philos_nourished(t_philo *philos, t_table *table)
 	return (1); // 全てのフィロが指定回数食事を終えた場合はtrue
 }
 
+static bool	set_all_nourished(t_table *table)
+{
+	pthread_mutex_lock(&table->moments_nourished_lock);
+	table->all_nourished = 1; // 全員が指定回数食事を終えたと設定
+	pthread_mutex_unlock(&table->moments_nourished_lock);
+	printf("All philosophers have nourished\n");
+	return (1); // 成功
+}
+
 void	*monitor(void *arg) // 監視スレッド
 {
 	t_philo *philos;
@@ -36,21 +45,21 @@ void	*monitor(void *arg) // 監視スレッド
 	int i;
 	size_t now;
 
-	i = 0;
 	philos = (t_philo *)arg; // 引数からフィロの配列を取得
 	table = philos[0].table; // テーブル情報を取得
 
-	i = 0;
 	while (1)
 	{
 		i = 0;
 		if (all_philos_nourished(philos, table)) // 全員が指定回数食事を終えたか確認
 		{
-			pthread_mutex_lock(&table->moments_nourished_lock);
-			table->all_nourished = 1; // 全員が指定回数食事を終えたと設定
-			pthread_mutex_unlock(&table->moments_nourished_lock);
-			printf("All philosophers have nourished\n");
-			return (NULL); // 監視スレッドは終了
+			if (set_all_nourished(table)) // 全員が指定回数食事を終えた場合
+				return (NULL);            // 監視スレッドは終了
+											// pthread_mutex_lock(&table->moments_nourished_lock);
+											// table->all_nourished = 1;
+											// 全員が指定回数食事を終えたと設定
+											// pthread_mutex_unlock(&table->moments_nourished_lock);
+											// printf("All philosophers have nourished\n");
 		}
 		while (i < table->n_philos)
 		{
