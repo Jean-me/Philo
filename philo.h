@@ -53,3 +53,14 @@ int		ft_atoi(const char *string);
 int		ft_isdigit(int c);
 int		is_number(char *str);
 int		over_int(char *str);
+
+void	eating(t_philo *philo, int id);
+void	putting_down_forks(t_table *table, pthread_mutex_t *first_fork,
+			pthread_mutex_t *second_fork);
+void	sleeping(t_philo *philo, int id);
+void	thinking(t_philo *philo, int id);
+int		picking_up_forks(int id, t_table *table, pthread_mutex_t *first_fork,
+			pthread_mutex_t *second_fork);
+bool	get_all_nourished(t_table *table);
+void	zzz(size_t duration, t_table *table);
+int		get_someone_died(t_table *table);
