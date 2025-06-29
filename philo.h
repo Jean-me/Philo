@@ -42,3 +42,4 @@ typedef struct s_philo //固有？
 
 void	*routine(void *arg);
 size_t	get_time(void);
+void	*monitor(void *arg);

@@ -1,6 +1,6 @@
 # philo
 NAME = philo
-SRCS = philo.c routine.c utils.c
+SRCS = philo.c routine.c utils.c monitor.c
 OBJS = $(SRCS:%.c=%.o)
 # Compiler
 CC = cc
