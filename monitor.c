@@ -33,8 +33,18 @@ static bool	set_all_nourished(t_table *table)
 	pthread_mutex_lock(&table->moments_nourished_lock);
 	table->all_nourished = 1; // 全員が指定回数食事を終えたと設定
 	pthread_mutex_unlock(&table->moments_nourished_lock);
-	printf("All philosophers have nourished\n");
 	return (1); // 成功
+}
+
+void	let_the_final_bell_toll(t_table *table, t_philo *philos,
+		size_t current_time, int i)
+{
+	size_t	now;
+
+	printf("%zu %zu\n", current_time, philos[i].last_meal);
+	now = get_time() - table->start_time; // 現在の時間を取得
+	printf("%zu %d died\n", now, philos[i].id);
+	set_someone_died(table); // 誰かが死んだと設定
 }
 
 void	*monitor(void *arg) // 監視スレッド
@@ -43,7 +53,7 @@ void	*monitor(void *arg) // 監視スレッド
 	t_table *table;
 	size_t current_time;
 	int i;
-	size_t now;
+	// size_t now;
 
 	philos = (t_philo *)arg; // 引数からフィロの配列を取得
 	table = philos[0].table; // テーブル情報を取得
@@ -55,22 +65,15 @@ void	*monitor(void *arg) // 監視スレッド
 		{
 			if (set_all_nourished(table)) // 全員が指定回数食事を終えた場合
 				return (NULL);            // 監視スレッドは終了
-											// pthread_mutex_lock(&table->moments_nourished_lock);
-											// table->all_nourished = 1;
-											// 全員が指定回数食事を終えたと設定
-											// pthread_mutex_unlock(&table->moments_nourished_lock);
-											// printf("All philosophers have nourished\n");
 		}
 		while (i < table->n_philos)
 		{
 			current_time = get_time();
 			if (current_time - philos[i].last_meal > (size_t)table->time_to_die)
 			{
-				printf("%zu %zu\n", current_time, philos[i].last_meal);
-				now = get_time() - table->start_time; // 現在の時間を取得
-				printf("%zu %d died\n", now, philos[i].id);
-				set_someone_died(table); // 誰かが死んだと設定
-				return (NULL);           // 監視スレッドは終了
+				let_the_final_bell_toll(table, philos, current_time, i);
+				// 最後の鐘を鳴らす
+				return (NULL);
 			}
 			i++;
 		}
