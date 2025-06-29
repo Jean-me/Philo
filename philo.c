@@ -266,8 +266,8 @@ static void	eating(t_philo *philo, int id)
 	zzz(philo->table->time_to_eat, philo->table);
 }
 
-static void	putting_down_forks(int id, t_table *table,
-		pthread_mutex_t *first_fork, pthread_mutex_t *second_fork)
+static void	putting_down_forks(t_table *table, pthread_mutex_t *first_fork,
+		pthread_mutex_t *second_fork)
 {
 	if (table->someone_died || get_all_nourished(table))
 	{
@@ -330,8 +330,7 @@ void	*routine(void *arg) // argはphiloそれぞれのアドレス
 		if (ret)
 			return (NULL); // フォークを取るのに失敗した場合は終了
 		eating(philo, id);
-		putting_down_forks(id, philo->table, philo->right_fork,
-			philo->left_fork);
+		putting_down_forks(philo->table, philo->right_fork, philo->left_fork);
 
 		sleeping(philo, id);
 		thinking(philo, id);
@@ -366,7 +365,7 @@ void	*monitor(void *arg) // 監視スレッド
 		while (i < table->n_philos)
 		{
 			current_time = get_time();
-			if (current_time - philos[i].last_meal > table->time_to_die)
+			if (current_time - philos[i].last_meal > (size_t)table->time_to_die)
 			{
 				printf("%zu %zu\n", current_time, philos[i].last_meal);
 				now = get_time() - table->start_time; // 現在の時間を取得
