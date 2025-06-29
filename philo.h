@@ -25,7 +25,7 @@ typedef struct s_table //共有？
 	pthread_mutex_t moments_nourished_lock;
 	// 食事の回数を管理するミューテックス
 
-}	t_table;
+}		t_table;
 
 typedef struct s_philo //固有？
 {
@@ -38,4 +38,7 @@ typedef struct s_philo //固有？
 	pthread_t thread;
 	pthread_mutex_t meal_lock; // lastmeal時間更新のロック
 	int times_nourished;       // 食事の回数（オプション）
-}	t_philo;
+}		t_philo;
+
+void	*routine(void *arg);
+size_t	get_time(void);
