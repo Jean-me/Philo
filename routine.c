@@ -121,15 +121,11 @@ void	*routine(void *arg)
 	// フィロが生きている間ループ
 	{
 		if (philo->id % 2 == 0) // 偶数のフィロは左のフォークを先に取る
-		{
 			ret = picking_up_forks(id, philo->table, philo->left_fork,
 									philo->right_fork); // first_fork,
-		}
-		else // 奇数のフィロは右のフォークを先に取る
-		{
+		else                                           // 奇数のフィロは右のフォークを先に取る
 			ret = picking_up_forks(id, philo->table, philo->right_fork,
 					philo->left_fork);
-		}
 		if (ret)
 			return (NULL); // フォークを取るのに失敗した場合は終了
 		eating(philo, id);

@@ -1,9 +1,21 @@
 #include "philo.h"
 
+static void	mutex_destroy(t_table *table, t_philo *philos)
+{
+	int	i;
 
+	i = 0;
+	while (i < table->n_philos) // フォークのミューテックスを破棄
+	{
+		pthread_mutex_destroy(&table->forks[i]);
+		pthread_mutex_destroy(&philos[i].meal_lock);
+		i++;
+	}
+	pthread_mutex_destroy(&table->died); // 誰かが死んだかどうかを管理するミューテックスを破棄
+	pthread_mutex_destroy(&table->moments_nourished_lock);
+}
 
-
-int	make_threads(t_philo *philos, t_table *table)
+static int	make_threads(t_philo *philos, t_table *table)
 {
 	int	i;
 
@@ -18,7 +30,6 @@ int	make_threads(t_philo *philos, t_table *table)
 	}
 	usleep(100); // スレッドが開始するまで少し待つ
 	if (pthread_create(&table->monitor_thread, NULL, monitor, philos) != 0)
-		//監視者
 		return (3);
 	i = 0;
 	while (i < table->n_philos)
@@ -28,14 +39,8 @@ int	make_threads(t_philo *philos, t_table *table)
 		i++;
 	}
 	pthread_join(table->monitor_thread, NULL); // 監視スレッドの終了を待つ
-	i = 0;
-	while (i < table->n_philos) // スレッドを終了した後、フォークのミューテックスを破棄
-	{
-		pthread_mutex_destroy(&table->forks[i]);
-		i++;
-	}
-	pthread_mutex_destroy(&table->died); // 誰かが死んだかどうかを管理するミューテックスを破棄
-	return (0);                          // 成功
+	mutex_destroy(table, philos);              // ミューテックスの破棄を行う
+	return (0);                                // 成功
 }
 
 int	main(int argc, char **argv) // numPhilo, die, eat, sleep,
