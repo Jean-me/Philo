@@ -41,5 +41,15 @@ typedef struct s_philo //固有？
 }		t_philo;
 
 void	*routine(void *arg);
-size_t	get_time(void);
 void	*monitor(void *arg);
+
+int		valid_or_not(int c, char **arg);
+void	arg_init(char **arg, t_table *table);
+void	philo_init(t_philo *phi, char **arg, t_table *table);
+void	mutex_init(t_table *table);
+
+size_t	get_time(void);
+int		ft_atoi(const char *string);
+int		ft_isdigit(int c);
+int		is_number(char *str);
+int		over_int(char *str);
