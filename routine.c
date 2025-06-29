@@ -17,7 +17,7 @@ void	zzz(size_t duration, t_table *table)
 	start = get_time();
 	while (!table->someone_died && get_time() - start < duration)
 	{
-		usleep(100); // 100マイクロ秒待機
+		usleep(100);
 	}
 }
 
@@ -40,20 +40,19 @@ void	*routine(void *arg)
 	philo = (t_philo *)arg;
 	id = philo->id;
 	while (!get_someone_died(philo->table) && !get_all_nourished(philo->table))
-	// フィロが生きている間ループ
 	{
-		if (philo->id % 2 == 0) // 偶数のフィロは左のフォークを先に取る
+		if (philo->id % 2 == 0)
 			ret = picking_up_forks(id, philo->table, philo->left_fork,
-									philo->right_fork); // first_fork,
-		else                                           // 奇数のフィロは右のフォークを先に取る
+					philo->right_fork);
+		else
 			ret = picking_up_forks(id, philo->table, philo->right_fork,
 					philo->left_fork);
 		if (ret)
-			return (NULL); // フォークを取るのに失敗した場合は終了
+			return (NULL);
 		eating(philo, id);
 		putting_down_forks(philo->table, philo->right_fork, philo->left_fork);
 		sleeping(philo, id);
 		thinking(philo, id);
 	}
-	return (NULL); // スレッド終了
+	return (NULL);
 }

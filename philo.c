@@ -5,13 +5,13 @@ static void	mutex_destroy(t_table *table, t_philo *philos)
 	int	i;
 
 	i = 0;
-	while (i < table->n_philos) // フォークのミューテックスを破棄
+	while (i < table->n_philos)
 	{
 		pthread_mutex_destroy(&table->forks[i]);
 		pthread_mutex_destroy(&philos[i].meal_lock);
 		i++;
 	}
-	pthread_mutex_destroy(&table->died); // 誰かが死んだかどうかを管理するミューテックスを破棄
+	pthread_mutex_destroy(&table->died);
 	pthread_mutex_destroy(&table->moments_nourished_lock);
 }
 
@@ -19,22 +19,22 @@ static int	make_threads(t_philo *philos, t_table *table)
 {
 	int	i;
 
-	table->start_time = get_time(); // 最後に食べた時間を現在の時間に設定
+	table->start_time = get_time();
 	i = 0;
 	while (i < table->n_philos)
 	{
-		philos[i].table = table; // 各フィロにテーブルの情報を渡す
+		philos[i].table = table;
 		if (pthread_create(&philos[i].thread, NULL, routine, &philos[i]) != 0)
-			return (1); // スレッドの作成に失敗した場合
+			return (1);
 		i++;
 	}
-	usleep(100); // スレッドが開始するまで少し待つ
+	usleep(100);
 	if (pthread_create(&table->monitor_thread, NULL, monitor, philos) != 0)
 		return (3);
 	i = 0;
 	while (i < table->n_philos)
 	{
-		if (pthread_join(philos[i].thread, NULL) != 0) // 各スレッドの終了を待つ
+		if (pthread_join(philos[i].thread, NULL) != 0)
 			return (2);
 		i++;
 	}
