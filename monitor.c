@@ -36,45 +36,44 @@ static bool	set_all_nourished(t_table *table)
 	return (1); // 成功
 }
 
-void	let_the_final_bell_toll(t_table *table, t_philo *philos,
+static bool	let_the_final_bell_toll(t_table *table, t_philo *philos,
 		size_t current_time, int i)
 {
 	size_t	now;
 
-	printf("%zu %zu\n", current_time, philos[i].last_meal);
-	now = get_time() - table->start_time; // 現在の時間を取得
-	printf("%zu %d died\n", now, philos[i].id);
-	set_someone_died(table); // 誰かが死んだと設定
+	if (current_time - philos[i].last_meal > (size_t)table->time_to_die)
+	{
+		printf("%zu %zu\n", current_time, philos[i].last_meal);
+		now = get_time() - table->start_time; // 現在の時間を取得
+		printf("%zu %d died\n", now, philos[i].id);
+		set_someone_died(table); // 誰かが死んだと設定
+		return (false);          // 死亡した場合はfalseを返す
+	}
+	return (true); // 死亡していない場合はtrueを返す
 }
 
-void	*monitor(void *arg) // 監視スレッド
+void	*monitor(void *arg)
 {
 	t_philo *philos;
 	t_table *table;
 	size_t current_time;
 	int i;
-	// size_t now;
 
-	philos = (t_philo *)arg; // 引数からフィロの配列を取得
-	table = philos[0].table; // テーブル情報を取得
-
+	philos = (t_philo *)arg;
+	table = philos[0].table;
 	while (1)
 	{
 		i = 0;
-		if (all_philos_nourished(philos, table)) // 全員が指定回数食事を終えたか確認
+		if (all_philos_nourished(philos, table))
 		{
-			if (set_all_nourished(table)) // 全員が指定回数食事を終えた場合
-				return (NULL);            // 監視スレッドは終了
+			if (set_all_nourished(table))
+				return (NULL);
 		}
 		while (i < table->n_philos)
 		{
 			current_time = get_time();
-			if (current_time - philos[i].last_meal > (size_t)table->time_to_die)
-			{
-				let_the_final_bell_toll(table, philos, current_time, i);
-				// 最後の鐘を鳴らす
-				return (NULL);
-			}
+			if (!let_the_final_bell_toll(table, philos, current_time, i))
+				return (NULL); // 誰かが死んだ場合は監視スレッドを終了
 			i++;
 		}
 	}
