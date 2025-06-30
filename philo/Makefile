@@ -4,7 +4,7 @@ SRCS = philo.c routine.c utils.c monitor.c ft_atoi.c init.c routine_actions.c
 OBJS = $(SRCS:%.c=%.o)
 # Compiler
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 
 # Rules
 all: $(NAME)

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   routine_actions.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/30 15:38:53 by mesasaki          #+#    #+#             */
+/*   Updated: 2025/06/30 15:58:07 by mesasaki         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	eating(t_philo *philo, int id)
@@ -53,7 +65,7 @@ void	thinking(t_philo *philo, int id)
 int	picking_up_forks(int id, t_table *table, pthread_mutex_t *first_fork,
 		pthread_mutex_t *second_fork)
 {
-	size_t now;
+	size_t	now;
 
 	if (get_someone_died(table) || get_all_nourished(table))
 		return (1);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/30 15:37:38 by mesasaki          #+#    #+#             */
+/*   Updated: 2025/06/30 15:37:41 by mesasaki         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <limits.h>
 #include <pthread.h>
 #include <stdbool.h>
@@ -30,13 +42,13 @@ typedef struct s_philo
 {
 	t_table			*table;
 	int				id;
-	size_t last_meal;            //最後に食べた時間
-	int dead_or_alive;           //生きているかどうか
-	pthread_mutex_t *left_fork;  // 左のフォーク（mutex）
-	pthread_mutex_t *right_fork; // 右のフォーク（mutex）
+	size_t			last_meal;
+	int				dead_or_alive;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
 	pthread_t		thread;
-	pthread_mutex_t meal_lock; // lastmeal時間更新のロック
-	int times_nourished;       // 食事の回数（オプション）
+	pthread_mutex_t	meal_lock;
+	int				times_nourished;
 }					t_philo;
 
 void				*routine(void *arg);

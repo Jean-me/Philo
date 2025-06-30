@@ -2,6 +2,7 @@
     "C_Cpp.errorSquiggles": "enabledIfIncludesResolve",
     "files.associations": {
         "stdlib.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "philo.h": "c"
     }
 }
