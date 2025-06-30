@@ -6,7 +6,7 @@
 /*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 15:37:38 by mesasaki          #+#    #+#             */
-/*   Updated: 2025/06/30 15:37:41 by mesasaki         ###   ########.fr       */
+/*   Updated: 2025/07/01 00:30:56 by mesasaki         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ typedef struct s_table
 	int				all_nourished;
 	size_t			start_time;
 	pthread_mutex_t	moments_nourished_lock;
+	pthread_mutex_t	print_mutex;
 
 }					t_table;
 
@@ -78,3 +79,6 @@ int					picking_up_forks(int id, t_table *table,
 bool				get_all_nourished(t_table *table);
 void				zzz(size_t duration, t_table *table);
 int					get_someone_died(t_table *table);
+
+void				print_routine(size_t now, t_table *table, int id,
+						const char *action);

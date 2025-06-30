@@ -27,7 +27,7 @@ void	zzz(size_t duration, t_table *table)
 	size_t	start;
 
 	start = get_time();
-	while (!table->someone_died && get_time() - start < duration)
+	while (!get_someone_died(table) && get_time() - start < duration)
 	{
 		usleep(100);
 	}

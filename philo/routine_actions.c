@@ -6,7 +6,7 @@
 /*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 15:38:53 by mesasaki          #+#    #+#             */
-/*   Updated: 2025/06/30 15:58:07 by mesasaki         ###   ########.fr       */
+/*   Updated: 2025/07/01 00:33:07 by mesasaki         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ void	eating(t_philo *philo, int id)
 	philo->times_nourished++;
 	pthread_mutex_unlock(&philo->meal_lock);
 	now = get_time() - philo->table->start_time;
-	printf("%zu %d is eating\n", now, id);
+	print_routine(now, philo->table, id, "is eating");
+	// printf("%zu %d is eating\n", now, id);
 	zzz(philo->table->time_to_eat, philo->table);
 }
 
@@ -48,7 +49,8 @@ void	sleeping(t_philo *philo, int id)
 	now = get_time() - philo->table->start_time;
 	if (get_someone_died(philo->table) || get_all_nourished(philo->table))
 		return ;
-	printf("%zu %d is sleeping\n", now, id);
+	print_routine(now, philo->table, id, "is sleeping");
+	// printf("%zu %d is sleeping\n", now, id);
 	zzz(philo->table->time_to_sleep, philo->table);
 }
 
@@ -59,7 +61,8 @@ void	thinking(t_philo *philo, int id)
 	if (get_someone_died(philo->table) || get_all_nourished(philo->table))
 		return ;
 	now = get_time() - philo->table->start_time;
-	printf("%zu %d is thinking\n", now, id);
+	print_routine(now, philo->table, id, "is thinking");
+	// printf("%zu %d is thinking\n", now, id);
 }
 
 int	picking_up_forks(int id, t_table *table, pthread_mutex_t *first_fork,
@@ -76,7 +79,8 @@ int	picking_up_forks(int id, t_table *table, pthread_mutex_t *first_fork,
 		return (1);
 	}
 	now = get_time() - table->start_time;
-	printf("%zu %d has taken a fork\n", now, id);
+	print_routine(now, table, id, "has taken a fork");
+	// printf("%zu %d has taken a fork\n", now, id);
 	if (table->n_philos == 1)
 		return (1);
 	pthread_mutex_lock(second_fork);
@@ -87,6 +91,7 @@ int	picking_up_forks(int id, t_table *table, pthread_mutex_t *first_fork,
 		return (1);
 	}
 	now = get_time() - table->start_time;
-	printf("%zu %d has taken a fork\n", now, id);
+	print_routine(now, table, id, "has taken a fork");
+	// printf("%zu %d has taken a fork\n", now, id);
 	return (0);
 }

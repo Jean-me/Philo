@@ -6,7 +6,7 @@
 /*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 15:38:14 by mesasaki          #+#    #+#             */
-/*   Updated: 2025/06/30 15:58:24 by mesasaki         ###   ########.fr       */
+/*   Updated: 2025/06/30 23:41:17 by mesasaki         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,4 +77,5 @@ void	mutex_init(t_table *table)
 	}
 	pthread_mutex_init(&table->moments_nourished_lock, NULL);
 	pthread_mutex_init(&table->died, NULL);
+	pthread_mutex_init(&table->print_mutex, NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 15:38:24 by mesasaki          #+#    #+#             */
-/*   Updated: 2025/06/30 15:56:53 by mesasaki         ###   ########.fr       */
+/*   Updated: 2025/07/01 00:37:46 by mesasaki         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,13 @@ static int	all_philos_nourished(t_philo *philos, t_table *table)
 		return (0);
 	while (i < table->n_philos)
 	{
-		pthread_mutex_lock(&table->moments_nourished_lock);
+		pthread_mutex_lock(&philos[i].meal_lock);
 		if (philos[i].times_nourished < table->number_of_meals)
 		{
-			pthread_mutex_unlock(&table->moments_nourished_lock);
+			pthread_mutex_unlock(&philos[i].meal_lock);
 			return (0);
 		}
-		pthread_mutex_unlock(&table->moments_nourished_lock);
+		pthread_mutex_unlock(&philos[i].meal_lock);
 		i++;
 	}
 	return (1);
@@ -52,12 +52,16 @@ static bool	let_the_final_bell_toll(t_table *table, t_philo *philos,
 		size_t current_time, int i)
 {
 	size_t	now;
+	size_t	last_meal_time;
 
-	if (current_time - philos[i].last_meal > (size_t)table->time_to_die)
+	pthread_mutex_lock(&philos[i].meal_lock);
+	last_meal_time = philos[i].last_meal;
+	pthread_mutex_unlock(&philos[i].meal_lock);
+	
+	if (current_time - last_meal_time > (size_t)table->time_to_die)
 	{
-		printf("%zu %zu\n", current_time, philos[i].last_meal);
 		now = get_time() - table->start_time;
-		printf("%zu %d died\n", now, philos[i].id);
+		print_routine(now, table, philos[i].id, "died");
 		set_someone_died(table);
 		return (false);
 	}
@@ -66,10 +70,10 @@ static bool	let_the_final_bell_toll(t_table *table, t_philo *philos,
 
 void	*monitor(void *arg)
 {
-	t_philo		*philos;
-	t_table		*table;
-	size_t		current_time;
-	int			i;
+	t_philo	*philos;
+	t_table	*table;
+	size_t	current_time;
+	int		i;
 
 	philos = (t_philo *)arg;
 	table = philos[0].table;
