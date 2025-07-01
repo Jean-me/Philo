@@ -6,7 +6,7 @@
 /*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 15:38:32 by mesasaki          #+#    #+#             */
-/*   Updated: 2025/06/30 15:38:33 by mesasaki         ###   ########.fr       */
+/*   Updated: 2025/07/02 01:47:24 by mesasaki         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,9 +63,16 @@ int	main(int argc, char **argv)
 	int		res;
 
 	if (argc < 5 || argc > 6)
+	{
+		write(2, "Error: Wrong number of arguments.\n", 34);
 		return (1);
+	}
 	if (valid_or_not(argc, argv))
+	{
+		write(2, "Error: All arguments must be positive integers.\n", 49);
+		write(2, "number_of_philosophers must be between 1 and 200.\n", 51);
 		return (1);
+	}
 	arg_init(argv, &table);
 	table.start_time = get_time();
 	philo_init(philos, argv, &table);
