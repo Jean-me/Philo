@@ -6,7 +6,7 @@
 /*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 15:38:53 by mesasaki          #+#    #+#             */
-/*   Updated: 2025/07/01 19:58:03 by mesasaki         ###   ########.fr       */
+/*   Updated: 2025/07/01 22:46:02 by mesasaki         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,8 @@ int	picking_up_forks(int id, t_table *table, pthread_mutex_t *first_fork,
 		pthread_mutex_unlock(first_fork);
 		return (1);
 	}
-	print_routine(get_time() - table->start_time, table, id, "has taken a fork");
+	print_routine(get_time() - table->start_time, table, id,
+		"has taken a fork");
 	if (table->n_philos == 1)
 	{
 		pthread_mutex_unlock(first_fork);
@@ -86,6 +87,7 @@ int	picking_up_forks(int id, t_table *table, pthread_mutex_t *first_fork,
 		pthread_mutex_unlock(second_fork);
 		return (1);
 	}
-	print_routine(get_time() - table->start_time, table, id, "has taken a fork");
+	print_routine(get_time() - table->start_time, table, id,
+		"has taken a fork");
 	return (0);
 }
