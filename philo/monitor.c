@@ -6,7 +6,7 @@
 /*   By: mesasaki <mesasaki@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 15:38:24 by mesasaki          #+#    #+#             */
-/*   Updated: 2025/07/01 00:37:46 by mesasaki         ###   ########.fr       */
+/*   Updated: 2025/07/01 15:13:29 by mesasaki         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ static bool	let_the_final_bell_toll(t_table *table, t_philo *philos,
 	pthread_mutex_lock(&philos[i].meal_lock);
 	last_meal_time = philos[i].last_meal;
 	pthread_mutex_unlock(&philos[i].meal_lock);
-	
 	if (current_time - last_meal_time > (size_t)table->time_to_die)
 	{
 		now = get_time() - table->start_time;

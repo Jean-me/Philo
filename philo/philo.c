@@ -25,6 +25,7 @@ static void	mutex_destroy(t_table *table, t_philo *philos)
 	}
 	pthread_mutex_destroy(&table->died);
 	pthread_mutex_destroy(&table->moments_nourished_lock);
+	pthread_mutex_destroy(&table->print_mutex);
 }
 
 static int	make_threads(t_philo *philos, t_table *table)
